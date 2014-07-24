@@ -3,6 +3,7 @@ package java.spyobird.encumberment;
 import java.io.File;
 
 import java.spyobird.encumberment.lib.ModData;
+import java.spyobird.encumberment.util.ModEventHooks;
 
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
@@ -47,7 +48,7 @@ public class EncumbermentPlus
 	@EventHandler
 	public static void postLoad(FMLPostInitializationEvent event)
 	{
-
+		MinecraftForge.EVENT_BUS.register(new ModEventHooks());
 	}
 	
 	public static EncumbermentPlus getInstance()
