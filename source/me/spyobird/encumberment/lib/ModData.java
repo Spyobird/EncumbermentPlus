@@ -1,4 +1,4 @@
-package java.spyobird.encumberment.lib;
+package me.spyobird.encumberment.lib;
 
 public class ModData
 {

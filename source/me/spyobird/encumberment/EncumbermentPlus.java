@@ -1,10 +1,12 @@
-package java.spyobird.encumberment;
+package me.spyobird.encumberment;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.UUID;
 
-import java.spyobird.encumberment.lib.ModData;
-import java.spyobird.encumberment.util.ModEventHooks;
-
+import me.spyobird.encumberment.lib.ModData;
+import me.spyobird.encumberment.lib.PlayerWeightData;
+import me.spyobird.encumberment.util.ModEventHooks;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
@@ -26,6 +28,8 @@ public class EncumbermentPlus
 	
 	//@SidedProxy(clientSide = "me.spyobird.ae.ClientProxy", serverSide = "me.spyobird.ae.CommonProxy")
 	//public static CommonProxy proxy;
+	
+	public static HashMap<UUID, PlayerWeightData> playerData = new HashMap<>();
 	
 	@EventHandler
 	public void preLoad(FMLPreInitializationEvent event)
