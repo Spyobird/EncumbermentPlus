@@ -29,8 +29,6 @@ public class EncumbermentPlus
 	//@SidedProxy(clientSide = "me.spyobird.ae.ClientProxy", serverSide = "me.spyobird.ae.CommonProxy")
 	//public static CommonProxy proxy;
 	
-	public static HashMap<UUID, PlayerWeightData> playerData = new HashMap<>();
-	
 	@EventHandler
 	public void preLoad(FMLPreInitializationEvent event)
 	{

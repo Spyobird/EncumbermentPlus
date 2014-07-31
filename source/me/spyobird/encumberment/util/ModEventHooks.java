@@ -1,8 +1,5 @@
 package me.spyobird.encumberment.util;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import me.spyobird.encumberment.EncumbermentPlus;
 import me.spyobird.encumberment.lib.PlayerWeightData;
 import me.spyobird.encumberment.lib.Weight;
 import net.minecraft.block.Block;
@@ -16,6 +13,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class ModEventHooks
 {
@@ -25,10 +24,10 @@ public class ModEventHooks
 		EntityLivingBase entity = event.entityLiving;
 		World world = entity.worldObj;
 		
-		int encumberment = 0;
-		int weight = 0;
-		int weightMax = 30000;
-		double modifier = 0;
+		int encumberment;
+		int weight;
+		int weightMax;
+		double modifier;
 		Weight data = new Weight();
 		
 		if (world.isRemote && entity != null)
@@ -38,55 +37,50 @@ public class ModEventHooks
 				EntityPlayer player = (EntityPlayer) entity;
 				
 				if (player.capabilities.isCreativeMode == false)
-				{
-				//	if (EncumbermentPlus.playerData.containsKey(player.getUniqueID()))
-					//{
-					//	encumberment = EncumbermentPlus.playerData.get(player.getUniqueID()).encumberment;
-				//		weight = EncumbermentPlus.playerData.get(player.getUniqueID()).weight;
-				//		weightMax = EncumbermentPlus.playerData.get(player.getUniqueID()).weightMax;
-				//	}
-				//	else
-				//	{
-						encumberment = 0;
-						weight = 0;
-						weightMax = 30000;
+				{					
+					encumberment = 0;
+					weight = 0;
+					weightMax = 30000;
 					
-						for (Object object : player.inventoryContainer.inventorySlots)
+					if (PlayerWeightData.playerData.containsKey(player.getUniqueID()))
+					{
+						weightMax = PlayerWeightData.playerData.get(player.getUniqueID()).weightMax;
+					}
+					
+					for (Object object : player.inventoryContainer.inventorySlots)
+					{
+						Slot slot = (Slot) object;
+						
+						if (slot.getHasStack())
 						{
-							Slot slot = (Slot) object;
+							ItemStack stack = slot.getStack();
+							Block block = null;
+							Item item = null;
+							int holder = 0;
 						
-							if (slot.getHasStack())
+							try
 							{
-
-								ItemStack stack = slot.getStack();
-								Block block = null;
-								Item item = null;
-								int holder = 0;
+								block = Block.blocksList[stack.getItem().itemID];
+							}
+							catch (Exception e) {}
 						
+							if (block != null)
+							{
+								holder = data.getBlockWeight(block) * stack.stackSize;
+							}
+							else
+							{
 								try
 								{
-									block = Block.blocksList[stack.getItem().itemID];
+									item = item.itemsList[stack.getItem().itemID];
 								}
 								catch (Exception e) {}
-						
-								if (block != null)
-								{
-									holder = data.getBlockWeight(block) * stack.stackSize;
-								}
-								else
-								{
-									try
-									{
-										item = item.itemsList[stack.getItem().itemID];
-									}
-									catch (Exception e) {}
 								
-									//data.getItemWeight(item);
-								}
-							
-								weight += holder;
+								//data.getItemWeight(item);
 							}
-					//	}
+							
+							weight += holder;
+						}
 					}
 					
 					if (weight > weightMax)
@@ -107,10 +101,20 @@ public class ModEventHooks
 					}
 					
 					PlayerWeightData playerData = new PlayerWeightData(encumberment, weight, weightMax);
-					EncumbermentPlus.playerData.put(player.getUniqueID(), playerData);
+					PlayerWeightData.playerData.put(player.getUniqueID(), playerData);
 					
-					modifier = (100 - encumberment) / 100;
-					player.capabilities.setPlayerWalkSpeed( (float) (0.1 * (2.4 - modifier)));
+					if (encumberment >= 100)
+					{
+						player.setVelocity(0, 0, 0);
+					}
+					else
+					{
+						modifier = (100 - encumberment) / 100;
+						player.motionX *= (modifier - 1) * 0.8 + 1;
+						player.motionZ *= (modifier - 1) * 0.8 + 1;
+					}
+					
+					player.addExhaustion( (float) (0.00001 * weight));
 				}
 			}
 		}
@@ -122,8 +126,8 @@ public class ModEventHooks
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		EntityPlayer player = mc.thePlayer;
-		if (EncumbermentPlus.playerData.containsKey(player.getUniqueID()))
-			event.left.add(String.valueOf(EncumbermentPlus.playerData.get(player.getUniqueID()).weight));
+		if (PlayerWeightData.playerData.containsKey(player.getUniqueID()))
+			event.left.add(String.valueOf(PlayerWeightData.playerData.get(player.getUniqueID()).weight));
 	}
 }
 
