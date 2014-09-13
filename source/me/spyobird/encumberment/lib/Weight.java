@@ -3,9 +3,7 @@ package me.spyobird.encumberment.lib;
 import java.util.HashMap;
 
 import me.spyobird.encumberment.util.ICustomWeight;
-
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
 
 public class Weight
 {	

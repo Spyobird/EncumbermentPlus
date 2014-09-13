@@ -1,6 +1,5 @@
 package me.spyobird.encumberment.util;
 
-import me.spyobird.encumberment.EncumbermentPlus;
 import me.spyobird.encumberment.lib.ConfigurationHandler;
 import me.spyobird.encumberment.lib.ModPotion;
 import me.spyobird.encumberment.lib.PlayerWeightData;
@@ -13,7 +12,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -99,7 +97,33 @@ public class ModEventHooks
 					player.addPotionEffect(new PotionEffect(ModPotion.encumbered.id, ConfigurationHandler.extraEncumberedDuration, 0));;
 				}
 				
-				ModPotion.checkPotionEffects(player);
+				if (player.isPotionActive(ModPotion.encumbered))
+				{
+					if (player.getActivePotionEffect(ModPotion.encumbered).duration == 0)
+					{
+						player.removePotionEffect(ModPotion.encumbered.id);
+					}
+					
+					player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).setAttribute(0);
+				}
+				else
+				{
+					player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).setAttribute(0.1);
+				}
+				
+				if (player.isPotionActive(ModPotion.vitality))
+				{
+					if (player.getActivePotionEffect(ModPotion.vitality).duration == 0)
+					{
+						player.removePotionEffect(ModPotion.vitality.id);
+					}
+					
+					weightMax = ConfigurationHandler.maximumWeight + ConfigurationHandler.extraVitalityWeight * (player.getActivePotionEffect(ModPotion.vitality).getAmplifier() + 1);
+				}
+				else
+				{
+					weightMax = ConfigurationHandler.maximumWeight;
+				}
 			}
 		}
 	}

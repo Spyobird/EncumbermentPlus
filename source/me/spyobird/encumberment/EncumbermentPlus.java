@@ -6,7 +6,9 @@ import java.lang.reflect.Modifier;
 
 import me.spyobird.encumberment.lib.ConfigurationHandler;
 import me.spyobird.encumberment.lib.ModData;
+import me.spyobird.encumberment.lib.ObjectInitializer;
 import me.spyobird.encumberment.util.ModEventHooks;
+import me.spyobird.encumberment.util.ModLogger;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
@@ -46,14 +48,15 @@ public class EncumbermentPlus
 	                modfield.setAccessible(true);
 	                modfield.setInt(f, f.getModifiers() & ~Modifier.FINAL);
 
-	                potionTypes = (Potion[])f.get(null);
+	                potionTypes = (Potion[]) f.get(null);
 	                final Potion[] modPotionTypes = new Potion[256];
 	                System.arraycopy(potionTypes, 0, modPotionTypes, 0, potionTypes.length);
 	                f.set(null, modPotionTypes);
 	            }
 	        } catch (Exception e)
 	        {
-	            System.err.println("Severe error, please report this to the mod author:");
+	            ModLogger.log("Severe error, please report this to the mod author:");
+	            ModLogger.log("Error with modded potions");
 	            System.err.println(e);
 	        }
 	    }
@@ -62,9 +65,12 @@ public class EncumbermentPlus
 		config.load();
 		
 		ConfigurationHandler.configSettings(config);
+		ConfigurationHandler.configBlocks(config);
 			
 		if (config.hasChanged())
 			config.save();
+		
+		ObjectInitializer.initializeBlocks();
 		
 		MinecraftForge.EVENT_BUS.register(this);
 	}
